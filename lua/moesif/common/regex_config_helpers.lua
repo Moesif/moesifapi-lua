@@ -89,7 +89,7 @@ end
 -- @param `governance_rules`       Governance rules with regex configs       
 -- @param `request_config_mapping` Config associated with the request
 -- @param `gr_id`                  Return the governance rule Id if regex config matches else nil
-function _M.fetch_governance_rule_id_on_regex_match(governance_rules, request_config_mapping, debug)
+function _M.fetch_governance_rule_id_on_regex_match(moesif_ctx, governance_rules, request_config_mapping, debug)
     local matched_rules = {}
     -- Iterate through the governance rules
     for rule_id, rule in pairs(governance_rules) do
@@ -97,13 +97,13 @@ function _M.fetch_governance_rule_id_on_regex_match(governance_rules, request_co
         local ok, matched = pcall(_M.check_event_should_blocked_by_rule, rule, request_config_mapping)
         if not ok then
             if debug then
-                ngx.log(ngx.DEBUG, "[moesif] Skipped blocking request as governance rule" ..rule_id.. " fetching issue")
+                moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] Skipped blocking request as governance rule" ..rule_id.. " fetching issue")
             end
         else
             -- Check if the governance rule is not nil
             if not matched then
                 if debug then
-                    ngx.log(ngx.DEBUG, "[moesif] Skipped blocking request as governance rule" ..rule_id.. " regex conditions does not match")
+                    moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] Skipped blocking request as governance rule" ..rule_id.. " regex conditions does not match")
                 end
             else
                 table.insert(matched_rules, rule)

@@ -1,8 +1,6 @@
 local _M = {}
 
 local string_format = string.format
-local ngx_log = ngx.log
-local ngx_log_ERR = ngx.ERR
 local cjson = require "cjson"
 -- local Logger = require "logger"
 -- local zlib = require "zlib"

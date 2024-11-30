@@ -5,6 +5,7 @@ local http_conn = require "moesif.common.http_connection"
 local client_ip = require "moesif.common.client_ip"
 local app_config = require "moesif.common.app_config"
 local moesif_gov = require "moesif.common.moesif_gov"
+local helpers = require "moesif.common.helpers"
 local moesif_ctx = nil
 
 local function dump(o)
@@ -58,9 +59,21 @@ function _M.get_config_internal(config, debug)
     return app_config.get_config_internal(moesif_ctx, httpc, config, debug)
 end
 
+function _M.set_default_config_value(conf)
+    return helpers.set_default_config_value(moesif_ctx, conf)
+end
 
 function _M.govern_request(conf, start_access_phase_time, verb, headers)
-    moesif_gov.govern_request(moesif_ctx, conf, start_access_phase_time, verb, headers)
+    -- moesif_gov.govern_request(moesif_ctx, conf, start_access_phase_time, verb, headers)
+    -- Check if need to block incoming request based on user-specified governance rules
+    local block_req = moesif_gov.govern_request(moesif_ctx, conf, start_access_phase_time, verb, headers)
+    if block_req == nil then 
+    if conf.debug then
+        moesif_ctx.log(moesif_ctx.DEBUG, '[moesif] No need to block incoming request.')
+    end
+    local end_access_phase_time = socket.gettime()*1000
+    moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] access phase took time for non-blocking request - ".. tostring(end_access_phase_time - start_access_phase_time).." for pid - ".. ngx.worker.pid())
+    end
 end
 
 

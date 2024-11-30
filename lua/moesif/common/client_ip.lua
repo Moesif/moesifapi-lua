@@ -39,13 +39,13 @@ local function is_ip(value)
  end
 
 -- Function to get the client Ip from the X-forwarded-for header
-local function getClientIpFromXForwardedFor(ctx, value)
+local function getClientIpFromXForwardedFor(moesif_ctx, value)
     if value == nil then
       return nil
     end
 
     if type(value) ~= "string" then
-      ctx.log(ctx.ERROR, " X-Forwarded-For Ip Expected string got type - : ", type(value))
+        moesif_ctx.log(moesif_ctx.ERROR, " X-Forwarded-For Ip Expected string got type - : ", type(value))
       return nil
     end
 
@@ -79,14 +79,14 @@ local function getClientIpFromXForwardedFor(ctx, value)
 end
 
 -- Function to get the client Ip
-function _M.get_client_ip(ctx, req_headers)
+function _M.get_client_ip(moesif_ctx, req_headers)
     -- Standard headers used by Amazon EC2, Heroku, and others.
     if is_ip(req_headers["x-client-ip"]) then
        return req_headers["x-client-ip"]
     end
 
     -- Load-balancers (AWS ELB) or proxies.
-    local xForwardedFor = getClientIpFromXForwardedFor(ctx, req_headers["x-forwarded-for"]);
+    local xForwardedFor = getClientIpFromXForwardedFor(moesif_ctx, req_headers["x-forwarded-for"]);
     if (is_ip(xForwardedFor)) then
         return xForwardedFor
     end
@@ -133,7 +133,7 @@ function _M.get_client_ip(ctx, req_headers)
     end
 
     -- Return remote address
-    return ngx.var.remote_addr
+    return moesif_ctx.var.remote_addr
 end
 
 return _M

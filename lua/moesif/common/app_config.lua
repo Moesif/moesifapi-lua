@@ -2,7 +2,22 @@
 local _M = {}
 
 local http_conn = require "moesif.common.http_connection"
+local gr_helpers = require "moesif.common.governance_helpers"
 local cjson = require "cjson"
+entity_rules_hashes = {}
+
+local function dump(o)
+    if type(o) == 'table' then
+      local s = '{ '
+      for k,v in pairs(o) do
+        if type(k) ~= 'number' then k = '"'..k..'"' end
+        s = s .. '['..k..'] = ' .. dump(v) .. ','
+      end
+      return s .. '} '
+    else
+      return tostring(o)
+    end
+  end
 
 function _M.get_config_internal(ctx, httpc, config, debug)
 
@@ -24,6 +39,39 @@ function _M.get_config_internal(ctx, httpc, config, debug)
           if config_tag ~= nil then
             config["ETag"] = config_tag
           end
+
+          -- Check if the governance rule is updated
+          local response_rules_etag = config_response.headers["x-moesif-rules-tag"]
+          if response_rules_etag ~= nil then
+            config["rulesETag"] = response_rules_etag
+          end
+
+          ctx.log(ctx.DEBUG, "[moesif] config.application_id - ", dump(config.application_id))
+
+          -- Hash key of the config application Id
+         local hash_key = string.sub(config.application_id, -10)
+
+         ctx.log(ctx.DEBUG, "[moesif] hash_key - ", dump(hash_key))
+
+          local entity_rules = {}
+          -- Create empty table for user/company rules
+          entity_rules[hash_key] = {}
+
+          -- Get governance rules
+        if (governance_rules_etags[hash_key] == nil or (config["rulesETag"] ~= governance_rules_etags[hash_key])) then
+            gr_helpers.get_governance_rules(httpc, hash_key, config)
+          end
+  
+          if (response_body["user_rules"] ~= nil) then
+            entity_rules[hash_key]["user_rules"] = response_body["user_rules"]
+          end
+  
+          if (response_body["company_rules"] ~= nil) then
+              entity_rules[hash_key]["company_rules"] = response_body["company_rules"]
+          end
+
+          -- generate entity merge tag values mapping
+          entity_rules_hashes[hash_key] = generate_entity_rule_values_mapping(hash_key, entity_rules)
   
           if (config["sample_rate"] ~= nil) and (response_body ~= nil) then
   
