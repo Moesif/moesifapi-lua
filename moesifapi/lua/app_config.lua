@@ -1,8 +1,8 @@
 
 local _M = {}
 
-local http_conn = require "moesif.common.http_connection"
-local gr_helpers = require "moesif.common.governance_helpers"
+local http_conn = require "moesifapi.lua.http_connection"
+local gr_helpers = require "moesifapi.lua.governance_helpers"
 local cjson = require "cjson"
 entity_rules_hashes = {}
 

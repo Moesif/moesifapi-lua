@@ -1,11 +1,11 @@
 local _M = {}
 
 local socket = require "socket"
-local http_conn = require "moesif.common.http_connection"
-local client_ip = require "moesif.common.client_ip"
-local app_config = require "moesif.common.app_config"
-local moesif_gov = require "moesif.common.moesif_gov"
-local helpers = require "moesif.common.helpers"
+local http_conn = require "moesifapi.lua.http_connection"
+local client_ip = require "moesifapi.lua.client_ip"
+local app_config = require "moesifapi.lua.app_config"
+local moesif_gov = require "moesifapi.lua.moesif_gov"
+local helpers = require "moesifapi.lua.helpers"
 local moesif_ctx = nil
 
 local function dump(o)

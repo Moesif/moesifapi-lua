@@ -2,7 +2,7 @@ local _M = {}
 local url = require "socket.url"
 local HTTPS = "https"
 local cjson = require "cjson"
-local base64 = require "moesif.common.base64"
+local base64 = require "moesifapi.lua.base64"
 
 
 local function dump(o)

@@ -1,10 +1,9 @@
 local _M = {}
--- local req_get_method = kong.request.get_method
-local helper = require "moesif.common.helpers"
-local regex_config_helper = require "moesif.common.regex_config_helpers"
-local client_ip = require "moesif.common.client_ip"
+local helper = require "moesifapi.lua.helpers"
+local regex_config_helper = require "moesifapi.lua.regex_config_helpers"
+local client_ip = require "moesifapi.lua.client_ip"
 local socket = require "socket"
-local base64 = require "moesif.common.base64"
+local base64 = require "moesifapi.lua.base64"
 local cjson = require "cjson"
 
 local function dump(o)

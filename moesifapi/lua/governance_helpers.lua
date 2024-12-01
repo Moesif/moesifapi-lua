@@ -1,6 +1,6 @@
 local _M = {}
 local cjson = require "cjson"
-local connect = require "moesif.common.http_connection"
+local connect = require "moesifapi.lua.http_connection"
 local ngx_log = ngx.log
 local ngx_log_ERR = ngx.ERR
 governance_rules_hashes = {}
