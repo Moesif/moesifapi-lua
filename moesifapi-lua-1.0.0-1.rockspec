@@ -39,5 +39,6 @@ build = {
     ["moesifapi.lua.moesif_gov"] = "moesifapi/lua/moesif_gov.lua",
     ["moesifapi.lua.helpers"] = "moesifapi/lua/helpers.lua",
     ["moesifapi.lua.governance_helpers"] = "moesifapi/lua/governance_helpers.lua",
+    ["moesifapi.lua.zzlib"] = "moesifapi/lua/zzlib.lua",
   }
 }
