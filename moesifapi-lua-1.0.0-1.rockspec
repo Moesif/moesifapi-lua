@@ -40,5 +40,6 @@ build = {
     ["moesifapi.lua.helpers"] = "moesifapi/lua/helpers.lua",
     ["moesifapi.lua.governance_helpers"] = "moesifapi/lua/governance_helpers.lua",
     ["moesifapi.lua.zzlib"] = "moesifapi/lua/zzlib.lua",
+    ["moesifapi.lua.serializaiton_helper"] = "moesifapi/lua/serializaiton_helper.lua",
   }
 }
