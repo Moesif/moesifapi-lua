@@ -6,6 +6,7 @@ local client_ip = require "moesifapi.lua.client_ip"
 local app_config = require "moesifapi.lua.app_config"
 local moesif_gov = require "moesifapi.lua.moesif_gov"
 local helpers = require "moesifapi.lua.helpers"
+local prepare_payload = require "moesifapi.lua.prepare_payload"
 local moesif_ctx = nil
 
 local function dump(o)
@@ -74,6 +75,10 @@ function _M.govern_request(conf, start_access_phase_time, verb, headers)
     local end_access_phase_time = socket.gettime()*1000
     moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] access phase took time for non-blocking request - ".. tostring(end_access_phase_time - start_access_phase_time).." for pid - ".. ngx.worker.pid())
     end
+end
+
+function _M.generate_post_payload(message, debug)
+    return prepare_payload.generate_post_payload(moesif_ctx, message, debug)
 end
 
 
