@@ -38,14 +38,13 @@ function _M.get_request(httpc, conf, url_path)
         })
 end
 
-function _M.post_request(httpc, conf, url_path, body, isCompressed)
+function _M.post_request(httpc, conf, url_path, body, isCompressed, user_agent_string)
 
     local headers = {}
     headers["Connection"] = "Keep-Alive"
     headers["Content-Type"] = "application/json"
     headers["X-Moesif-Application-Id"] = conf.application_id
-    -- TODO: Fix it
-    -- headers["User-Agent"] = "kong-plugin-moesif/"..plugin_version
+    headers["User-Agent"] = user_agent_string
     headers["Content-Length"] = #body
     if isCompressed then 
         headers["Content-Encoding"] = "deflate"

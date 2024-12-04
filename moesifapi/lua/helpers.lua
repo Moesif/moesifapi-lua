@@ -28,8 +28,8 @@ function _M.prepare_request_uri(moesif_ctx, conf)
 
   moesif_ctx.log(moesif_ctx.DEBUG, "config in prepare_request_uri - ", dump(conf))
 
-  if next({}) ~= nil and request_uri ~= nil then
---   if next(conf:get("request_query_masks")) ~= nil and request_uri ~= nil then
+  -- TODO: Add pcall?
+  if next(cjson.decode(conf:get("request_query_masks"))) ~= nil and request_uri ~= nil then
     for _, value in ipairs(conf.request_query_masks) do
       request_uri = request_uri:gsub(value.."=[^&]*([^&])", value.."=*****", 1)
     end
@@ -182,7 +182,7 @@ if isempty(config:get("disable_transaction_id")) then
   -- TODO: Figure out - request_query_masks = {default = {}, type = "array", elements = typedefs.header_name}
   if isempty(config:get("request_query_masks")) then
     moesif_ctx.log(moesif_ctx.DEBUG, "config set to default in helpers - ")  
-    config:set("request_query_masks", {})
+    config:set("request_query_masks", "{}")
   else
     moesif_ctx.log(moesif_ctx.DEBUG, "config not set to default in helpers - ")  
   end
