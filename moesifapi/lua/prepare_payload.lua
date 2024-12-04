@@ -18,23 +18,32 @@ local function compress_data(input_string)
 end
 
 
-function _M.generate_post_payload(moesif_ctx, message, debug)
+function _M.generate_post_payload(moesif_ctx, conf, message, debug)
 
   local body = cjson.encode(message)
+  local payload = nil
+  local isCompressed = conf.enable_compression
 
-  local ok, compressed_body = pcall(compress_data, body)
-  if not ok then
-    if debug then
-      moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] failed to compress body: ")
+  if conf.enable_compression then 
+    local ok, compressed_body = pcall(compress_data, body)
+    if not ok then
+      if debug then
+        moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] failed to compress body: ")
+      end
+      payload = body
+      isCompressed = false 
+    else
+      if debug then
+        moesif_ctx.log(moesif_ctx.DEBUG, " [moesif] successfully compressed body")
+      end
+      payload = compressed_body
     end
-
-    return body
   else
-    if debug then
-      moesif_ctx.log(moesif_ctx.DEBUG, " [moesif] successfully compressed body")
-    end
-    return compressed_body
-  end  
+    moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] NO NEED TO compress body: ")
+    payload = body
+  end
+  
+  return payload, isCompressed
 end
 
 return _M

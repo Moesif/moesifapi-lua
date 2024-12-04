@@ -77,8 +77,8 @@ function _M.govern_request(conf, start_access_phase_time, verb, headers)
     end
 end
 
-function _M.generate_post_payload(message, debug)
-    return prepare_payload.generate_post_payload(moesif_ctx, message, debug)
+function _M.generate_post_payload(conf, message, debug)
+    return prepare_payload.generate_post_payload(moesif_ctx, conf, message, debug)
 end
 
 

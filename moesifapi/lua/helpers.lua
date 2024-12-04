@@ -172,6 +172,10 @@ if isempty(config:get("disable_transaction_id")) then
   if isempty(config:get("authorization_user_id_field")) then
     config:set("authorization_user_id_field", "sub")
   end
+
+  if isempty(config:get("enable_compression")) then
+    config:set("enable_compression", false)
+  end
   
   -- TODO: In NGINX's Lua module, shared dictionaries (ngx.shared.my_conf) are designed to hold string-based values or other simple types like numbers, booleans, etc. 
   -- They are not meant to store Lua tables directly, including empty tables, in the same way you would work with Lua's native data structures.
