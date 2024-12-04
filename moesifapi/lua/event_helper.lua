@@ -19,9 +19,9 @@ local function prepare_reqeust(moesif_ctx, config, request_headers, request_body
 end
 
 local function prepare_response(moesif_ctx, response_headers, response_body_entity, rsp_body_transfer_encoding)
-    local ngx_now = moesif_ctx.now
+    local moesif_ctx_now = moesif_ctx.now
     return {
-        time = os.date("!%Y-%m-%dT%H:%M:%S.", ngx_now()) .. string.format("%d",(ngx_now()- string.format("%d",ngx_now()))*1000),
+        time = os.date("!%Y-%m-%dT%H:%M:%S.", moesif_ctx_now()) .. string.format("%d",(moesif_ctx_now()- string.format("%d",moesif_ctx_now()))*1000),
         status = moesif_ctx.status,
         ip_address = nil,
         headers = response_headers,

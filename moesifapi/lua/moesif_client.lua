@@ -8,6 +8,7 @@ local helpers = require "moesifapi.lua.helpers"
 local prepare_payload = require "moesifapi.lua.prepare_payload"
 local body_helper = require "moesifapi.lua.serializaiton_helper"
 local event_helper = require "moesifapi.lua.event_helper"
+local regex_config_helper = require "moesifapi.lua.regex_config_helpers"
 local moesif_ctx = nil
 
 local function dump(o)
@@ -91,5 +92,9 @@ function _M.prepare_event(config, request_headers, request_body_entity, req_body
                                         response_headers, response_body_entity, rsp_body_transfer_encoding,
                                         session_token_entity, user_id_entity, company_id_entity, blocked_by_entity)
 end
+
+function _M.fetch_sample_rate_block_request_on_regex_match(gr_regex_configs, request_config_mapping)
+    return regex_config_helper.fetch_sample_rate_block_request_on_regex_match(gr_regex_configs, request_config_mapping)
+end 
 
 return _M
