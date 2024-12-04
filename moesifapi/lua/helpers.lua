@@ -189,7 +189,7 @@ if isempty(config:get("disable_transaction_id")) then
 
   for _, key in ipairs({"application_id", "debug", "request_query_masks"}) do
     local value = config:get(key)
-    ngx.log(ngx.ERR, "Key: ", key, ", Value: ", dump(value) or "nil")
+    moesif_ctx.log(moesif_ctx.ERR, "Key: ", key, ", Value: ", dump(value) or "nil")
 end
 
   moesif_ctx.log(moesif_ctx.DEBUG, "config return from helpers - ", dump(config))

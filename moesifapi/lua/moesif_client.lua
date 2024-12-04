@@ -7,6 +7,7 @@ local app_config = require "moesifapi.lua.app_config"
 local moesif_gov = require "moesifapi.lua.moesif_gov"
 local helpers = require "moesifapi.lua.helpers"
 local prepare_payload = require "moesifapi.lua.prepare_payload"
+local body_helper = require "moesifapi.lua.serializaiton_helper"
 local moesif_ctx = nil
 
 local function dump(o)
@@ -73,7 +74,7 @@ function _M.govern_request(conf, start_access_phase_time, verb, headers)
         moesif_ctx.log(moesif_ctx.DEBUG, '[moesif] No need to block incoming request.')
     end
     local end_access_phase_time = socket.gettime()*1000
-    moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] access phase took time for non-blocking request - ".. tostring(end_access_phase_time - start_access_phase_time).." for pid - ".. ngx.worker.pid())
+    moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] access phase took time for non-blocking request - ".. tostring(end_access_phase_time - start_access_phase_time).." for pid - ".. moesif_ctx.worker.pid())
     end
 end
 
@@ -81,5 +82,9 @@ function _M.generate_post_payload(conf, message, debug)
     return prepare_payload.generate_post_payload(moesif_ctx, conf, message, debug)
 end
 
+
+function _M.parse_body(headers, body, mask_fields, config)
+    return body_helper.parse_body(moesif_ctx, headers, body, mask_fields, config)
+end
 
 return _M

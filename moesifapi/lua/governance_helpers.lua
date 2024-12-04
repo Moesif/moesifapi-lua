@@ -1,8 +1,6 @@
 local _M = {}
 local cjson = require "cjson"
 local connect = require "moesifapi.lua.http_connection"
-local ngx_log = ngx.log
-local ngx_log_ERR = ngx.ERR
 governance_rules_hashes = {}
 regex_governance_rules_hashes = {}
 governance_rules_etags = {}
@@ -36,9 +34,6 @@ function _M.get_governance_rules(httpc, hash_key, conf)
 
     -- Send the request to fetch governance rules
     local governance_rules_response, governance_rules_error = connect.get_request(httpc, conf, "/v1/rules")
-
-    ngx.log(ngx.DEBUG, "governance_rules_response - ", dump(governance_rules_response))
-    ngx.log(ngx.DEBUG, "governance_rules_error - ", dump(governance_rules_error))
 
     if governance_rules_response ~= nil and governance_rules_response ~= '' then 
 
@@ -79,9 +74,6 @@ function _M.get_governance_rules(httpc, hash_key, conf)
             end
         end
 
-        ngx.log(ngx.DEBUG, "regex_rules - ", dump(regex_rules))
-        ngx.log(ngx.DEBUG, "hash_key - ", dump(hash_key))
-
         regex_governance_rules_hashes[hash_key] = regex_rules
         governance_rules_hashes[hash_key] = {
             [RuleType.USER] = {
@@ -95,8 +87,6 @@ function _M.get_governance_rules(httpc, hash_key, conf)
         }
 
         graphQlRule_hashes[hash_key] = graphQLRule
-
-        ngx.log(ngx.DEBUG, "graphQlRule_hashes before returning - ", dump(graphQlRule_hashes))
 
         -- Read the Response tag
         local rules_etag =  governance_rules_response.headers["x-moesif-rules-tag"]

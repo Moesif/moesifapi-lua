@@ -50,20 +50,19 @@ local function process_data(body, mask_fields)
   return body_entity, body_transfer_encoding
 end
 
--- TODO: Need to pass moesif_ctx
-local function decompress_body(body, masks, config)
+local function decompress_body(moesif_ctx, body, masks, config)
   local body_entity = nil
   local body_transfer_encoding = nil
 
   local ok, decompressed_body = pcall(zzlib.gunzip, body)
   if not ok then
     if config:get("debug") then
-      ngx.log(ngx.DEBUG, "[moesif] failed to decompress body: ", decompressed_body)
+        moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] failed to decompress body: ", decompressed_body)
     end
     body_entity, body_transfer_encoding = base64_encode_body(body)
   else
     if config:get("debug") then
-      ngx.log(ngx.DEBUG, " [moesif]  ", "successfully decompressed body: ")
+        moesif_ctx.log(moesif_ctx.DEBUG, " [moesif]  ", "successfully decompressed body: ")
     end
     if is_valid_json(decompressed_body) then 
         body_entity, body_transfer_encoding = process_data(decompressed_body, masks)
@@ -98,7 +97,7 @@ function _M.mask_body_fields(body_masks_config, deprecated_body_masks_config)
   end
 end
 
-function _M.parse_body(headers, body, mask_fields, config)
+function _M.parse_body(moesif_ctx, headers, body, mask_fields, config)
   local body_entity = nil
   local body_transfer_encoding = nil
 
@@ -106,7 +105,7 @@ function _M.parse_body(headers, body, mask_fields, config)
     body_entity, body_transfer_encoding = process_data(body, mask_fields)
   elseif headers["content-encoding"] ~= nil and type(body) == "string" and string.find(headers["content-encoding"], "gzip") then
     if not config:get("disable_gzip_payload_decompression") then 
-      body_entity, body_transfer_encoding = decompress_body(body, mask_fields, config)
+      body_entity, body_transfer_encoding = decompress_body(moesif_ctx, body, mask_fields, config)
     else
       body_entity, body_transfer_encoding = base64_encode_body(body)
     end
