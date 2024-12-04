@@ -2,12 +2,12 @@ local _M = {}
 
 local socket = require "socket"
 local http_conn = require "moesifapi.lua.http_connection"
-local client_ip = require "moesifapi.lua.client_ip"
 local app_config = require "moesifapi.lua.app_config"
 local moesif_gov = require "moesifapi.lua.moesif_gov"
 local helpers = require "moesifapi.lua.helpers"
 local prepare_payload = require "moesifapi.lua.prepare_payload"
 local body_helper = require "moesifapi.lua.serializaiton_helper"
+local event_helper = require "moesifapi.lua.event_helper"
 local moesif_ctx = nil
 
 local function dump(o)
@@ -52,10 +52,6 @@ function _M.get_http_connection(conf)
     return get_http_client(conf)
 end
 
-function _M.get_client_ip(headers)
-    return client_ip.get_client_ip(moesif_ctx, headers)
-end
-
 function _M.get_config_internal(config, debug)
     local httpc = get_http_client(config)
     return app_config.get_config_internal(moesif_ctx, httpc, config, debug)
@@ -85,6 +81,15 @@ end
 
 function _M.get_identity_from_auth_header(conf, request_headers)
     return helpers.get_identity_from_auth_header(conf, request_headers)
+end
+
+function _M.prepare_event(config, request_headers, request_body_entity, req_body_transfer_encoding, api_version,
+    response_headers, response_body_entity, rsp_body_transfer_encoding,
+    session_token_entity, user_id_entity, company_id_entity, blocked_by_entity)
+    
+    return event_helper.prepare_event(moesif_ctx, config, request_headers, request_body_entity, req_body_transfer_encoding, api_version,
+                                        response_headers, response_body_entity, rsp_body_transfer_encoding,
+                                        session_token_entity, user_id_entity, company_id_entity, blocked_by_entity)
 end
 
 return _M

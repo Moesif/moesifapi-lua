@@ -35,6 +35,7 @@ build = {
     ["moesifapi.lua.client_ip"] = "moesifapi/lua/client_ip.lua",
     ["moesifapi.lua.base64"] = "moesifapi/lua/base64.lua",
     ["moesifapi.lua.app_config"] = "moesifapi/lua/app_config.lua",
+    ["moesifapi.lua.event_helper"] = "moesifapi/lua/event_helper.lua",
     ["moesifapi.lua.regex_config_helpers"] = "moesifapi/lua/regex_config_helpers.lua",
     ["moesifapi.lua.moesif_gov"] = "moesifapi/lua/moesif_gov.lua",
     ["moesifapi.lua.helpers"] = "moesifapi/lua/helpers.lua",

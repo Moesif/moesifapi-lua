@@ -30,7 +30,7 @@ function _M.prepare_request_uri(moesif_ctx, conf)
 
   -- TODO: Add pcall?
   if next(cjson.decode(conf:get("request_query_masks"))) ~= nil and request_uri ~= nil then
-    for _, value in ipairs(conf.request_query_masks) do
+    for _, value in ipairs(cjson.decode(conf:get("request_query_masks"))) do
       request_uri = request_uri:gsub(value.."=[^&]*([^&])", value.."=*****", 1)
     end
   end
