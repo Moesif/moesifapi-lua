@@ -61,10 +61,6 @@ function _M.get_config_internal(config, debug)
     return app_config.get_config_internal(moesif_ctx, httpc, config, debug)
 end
 
-function _M.set_default_config_value(conf)
-    return helpers.set_default_config_value(moesif_ctx, conf)
-end
-
 function _M.govern_request(conf, start_access_phase_time, verb, headers)
     -- moesif_gov.govern_request(moesif_ctx, conf, start_access_phase_time, verb, headers)
     -- Check if need to block incoming request based on user-specified governance rules
@@ -85,6 +81,10 @@ end
 
 function _M.parse_body(headers, body, mask_fields, config)
     return body_helper.parse_body(moesif_ctx, headers, body, mask_fields, config)
+end
+
+function _M.get_identity_from_auth_header(conf, request_headers)
+    return helpers.get_identity_from_auth_header(conf, request_headers)
 end
 
 return _M
