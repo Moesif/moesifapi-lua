@@ -416,12 +416,10 @@ function _M.govern_request(moesif_ctx, conf, start_access_phase_time, verb, head
     local user_id_entity = nil
     local company_id_entity = nil
     local request_uri = helper.prepare_request_uri(moesif_ctx, conf)
-    local request_verb = verb --req_get_method()
-    local request_headers = headers--req_get_headers()
+    local request_verb = verb
+    local request_headers = headers
     local request_ip_address = client_ip.get_client_ip(moesif_ctx, request_headers)
-    -- TODO: Figure out 
     local request_body = moesif_ctx.ctx.moesif.req_body
-    -- local request_body = nil --moesif_ctx.ctx.moesif.req_body
     local request_config_mapping = regex_config_helper.prepare_config_mapping(regex_config_helper.prepare_request_config_mapping(request_verb, request_uri, request_ip_address, request_headers, request_body), hash_key)
 
     -- company id

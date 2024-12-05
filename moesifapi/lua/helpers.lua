@@ -3,6 +3,19 @@ local _M = {}
 local cjson = require "cjson"
 local base64 = require "moesifapi.lua.base64"
 
+-- Split the string
+function _M.split(str, character)
+  local result = {}
+
+  local index = 1
+  for s in string.gmatch(str, "[^"..character.."]+") do
+    result[index] = s
+    index = index + 1
+  end
+
+  return result
+end
+
 -- Prepare request URI
 -- @param `moesif_ctx`  Moesif context object
 -- @param `conf`     Configuration table, holds http endpoint details
@@ -11,9 +24,9 @@ function _M.prepare_request_uri(moesif_ctx, conf)
 
   local request_uri = moesif_ctx.var.request_uri
 
-  local decoded_request_query_masks = cjson.decode(conf:get("request_query_masks"))
-  if next(decoded_request_query_masks) ~= nil and request_uri ~= nil then
-    for _, value in ipairs(decoded_request_query_masks) do
+  local request_query_masks = _M.split(conf:get("request_query_masks"), ",")
+  if next(request_query_masks) ~= nil and request_uri ~= nil then
+    for _, value in ipairs(request_query_masks) do
       request_uri = request_uri:gsub(value.."=[^&]*([^&])", value.."=*****", 1)
     end
   end

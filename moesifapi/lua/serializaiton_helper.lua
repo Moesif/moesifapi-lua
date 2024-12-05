@@ -5,7 +5,6 @@ local cjson_safe = require "cjson.safe"
 local base64 = require "moesifapi.lua.base64"
 local zzlib = require "moesifapi.lua.zzlib"
 
--- TODO: Compare with the one in the kong
 -- Mask Body
 local function mask_body(body, masks)
   if masks == nil then return body end
