@@ -37,13 +37,13 @@ local function process_data(body, mask_fields)
       body_entity, body_transfer_encoding = base64_encode_body(body)
   else
       if next(mask_fields) == nil then
-          body_entity, body_transfer_encoding = deserialised_body, 'json' 
+          body_entity, body_transfer_encoding = deserialised_body, 'json'
       else
           local ok, mask_result = pcall(mask_body, deserialised_body, mask_fields)
           if not ok then
-            body_entity, body_transfer_encoding = deserialised_body, 'json' 
+            body_entity, body_transfer_encoding = deserialised_body, 'json'
           else
-            body_entity, body_transfer_encoding = mask_result, 'json' 
+            body_entity, body_transfer_encoding = mask_result, 'json'
           end
       end
   end
@@ -101,7 +101,7 @@ function _M.parse_body(moesif_ctx, headers, body, mask_fields, config)
   local body_entity = nil
   local body_transfer_encoding = nil
 
-  if headers["content-type"] ~= nil and is_valid_json(body) then -- and string.find(headers["content-type"], "json")
+  if headers["content-type"] ~= nil and is_valid_json(body) then
     body_entity, body_transfer_encoding = process_data(body, mask_fields)
   elseif headers["content-encoding"] ~= nil and type(body) == "string" and string.find(headers["content-encoding"], "gzip") then
     if not config:get("disable_gzip_payload_decompression") then 

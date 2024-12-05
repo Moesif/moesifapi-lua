@@ -1,23 +1,11 @@
 local _M = {}
+
 local helper = require "moesifapi.lua.helpers"
 local regex_config_helper = require "moesifapi.lua.regex_config_helpers"
 local client_ip = require "moesifapi.lua.client_ip"
 local socket = require "socket"
-local base64 = require "moesifapi.lua.base64"
 local cjson = require "cjson"
 
-local function dump(o)
-    if type(o) == 'table' then
-      local s = '{ '
-      for k,v in pairs(o) do
-        if type(k) ~= 'number' then k = '"'..k..'"' end
-        s = s .. '['..k..'] = ' .. dump(v) .. ','
-      end
-      return s .. '} '
-    else
-      return tostring(o)
-    end
-  end
 
 -- Replace body value in the response body for the short-circuited request
 -- @param `body_table`    Response Body
@@ -318,7 +306,9 @@ function generate_gov_rule_response(moesif_ctx, hash_key, matched_governance_rul
     moesif_ctx.ctx.moesif["blocked_by"] = block_by
 
     local end_access_phase_time = socket.gettime()*1000
-    moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] access phase took time for blocking request - ".. tostring(end_access_phase_time - start_access_phase_time).." for pid - ".. moesif_ctx.worker.pid())
+    if debug then
+        moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] access phase took time for blocking request - ".. tostring(end_access_phase_time - start_access_phase_time).." for pid - ".. moesif_ctx.worker.pid())
+    end
 
     -- TODO: Figure out
     -- return error("should short circuit return here -")
@@ -396,7 +386,6 @@ function get_rules(moesif_ctx, hash_key, rule_type, is_applied_to_unidentified, 
         end
 
     elseif rule_type == RuleType.REGEX then
-        moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] regex_governance_rules_hashes in govern_request - : ",  dump(regex_governance_rules_hashes))
         if regex_governance_rules_hashes[hash_key] ~= nil and type(regex_governance_rules_hashes[hash_key]) == "table" and next(regex_governance_rules_hashes[hash_key]) ~= nil then
             governance_rules = regex_governance_rules_hashes[hash_key]
         else
@@ -424,9 +413,6 @@ function _M.govern_request(moesif_ctx, conf, start_access_phase_time, verb, head
     -- Hash key of the config application Id
     -- local hash_key = string.sub(conf.application_id, -10)
     local hash_key = string.sub(conf:get("application_id"), -10)
-
-    moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] hash key in govern_request - : ",  dump(hash_key))
-
     local user_id_entity = nil
     local company_id_entity = nil
     local request_uri = helper.prepare_request_uri(moesif_ctx, conf)
@@ -551,7 +537,7 @@ function _M.govern_request(moesif_ctx, conf, start_access_phase_time, verb, head
         end
     end
 
-    local unidentified_company_gov_rules = get_rules(moesif_ctx, hash_key, RuleType.COMPANY, "unidentified", conf)
+    local unidentified_company_gov_rules = get_rules(moesif_ctx, hash_key, RuleType.COMPANY, "unidentified", conf.debug)
     -- Check if need to block request based on unidentified company governance rule
     if unidentified_company_gov_rules ~= nil and type(unidentified_company_gov_rules) == "table" and next(unidentified_company_gov_rules) ~= nil then
         if company_id_entity == nil then
@@ -589,7 +575,7 @@ function _M.govern_request(moesif_ctx, conf, start_access_phase_time, verb, head
         end
     end
 
-    local regex_gov_rules = get_rules(moesif_ctx, hash_key, RuleType.REGEX, "unidentified", conf)
+    local regex_gov_rules = get_rules(moesif_ctx, hash_key, RuleType.REGEX, "unidentified", conf.debug)
     ---- Check if need to block request based on the regex governance rule
     if regex_gov_rules ~= nil and type(regex_gov_rules) == "table" and next(regex_gov_rules) ~= nil then
         -- Check if the governance rule regex config matches request config mapping and regex governance rules

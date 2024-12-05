@@ -11,32 +11,12 @@ local event_helper = require "moesifapi.lua.event_helper"
 local regex_config_helper = require "moesifapi.lua.regex_config_helpers"
 local moesif_ctx = nil
 
-local function dump(o)
-    if type(o) == 'table' then
-      local s = '{ '
-      for k,v in pairs(o) do
-        if type(k) ~= 'number' then k = '"'..k..'"' end
-        s = s .. '['..k..'] = ' .. dump(v) .. ','
-      end
-      return s .. '} '
-    else
-      return tostring(o)
-    end
-  end
-
 function _M.get_moesif_client(ctx)
     moesif_ctx = ctx
-    ctx.log(ctx.DEBUG, "Inside get_moesif_client " .. tostring(ctx))
     return moesif_ctx
 end
 
-function _M.moesif_log(msg)
-    moesif_ctx.log(moesif_ctx.DEBUG, msg .." for pid - ".. moesif_ctx.worker.pid())
-end
-
 local function get_http_client(conf)
-
-    -- moesif_ctx.log(moesif_ctx.DEBUG, "Inside get_http_connection " .. tostring(moesif_ctx) .. " http_conn - ".. dump(http_conn))
 
     local create_client_time = socket.gettime()*1000
     local httpc = http_conn.get_client(conf)
@@ -59,15 +39,16 @@ function _M.get_config_internal(config, debug)
 end
 
 function _M.govern_request(conf, start_access_phase_time, verb, headers)
-    -- moesif_gov.govern_request(moesif_ctx, conf, start_access_phase_time, verb, headers)
     -- Check if need to block incoming request based on user-specified governance rules
     local block_req = moesif_gov.govern_request(moesif_ctx, conf, start_access_phase_time, verb, headers)
     if block_req == nil then 
-    if conf.debug then
-        moesif_ctx.log(moesif_ctx.DEBUG, '[moesif] No need to block incoming request.')
-    end
-    local end_access_phase_time = socket.gettime()*1000
-    moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] access phase took time for non-blocking request - ".. tostring(end_access_phase_time - start_access_phase_time).." for pid - ".. moesif_ctx.worker.pid())
+        if conf.debug then
+            moesif_ctx.log(moesif_ctx.DEBUG, '[moesif] No need to block incoming request.')
+        end
+        local end_access_phase_time = socket.gettime()*1000
+        if conf.debug then
+            moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] access phase took time for non-blocking request - ".. tostring(end_access_phase_time - start_access_phase_time).." for pid - ".. moesif_ctx.worker.pid())
+        end
     end
 end
 

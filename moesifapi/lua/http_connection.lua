@@ -1,22 +1,7 @@
 local _M = {}
 
-local socket = require "socket"
 local http = require "resty.http"
--- local Logger = require "logger"
 local keepalive_timeout = 600000
-
-local function dump(o)
-    if type(o) == 'table' then
-      local s = '{ '
-      for k,v in pairs(o) do
-        if type(k) ~= 'number' then k = '"'..k..'"' end
-        s = s .. '['..k..'] = ' .. dump(v) .. ','
-      end
-      return s .. '} '
-    else
-      return tostring(o)
-    end
-  end
 
 function _M.get_client(conf)
     -- Create http client
@@ -34,7 +19,7 @@ function _M.get_request(httpc, conf, url_path)
                 ["Connection"] = "Keep-Alive",
                 ["X-Moesif-Application-Id"] = conf.application_id
             },
-            ssl_verify = false -- TODO: Figure it out 
+            ssl_verify = false
         })
 end
 
@@ -57,7 +42,7 @@ function _M.post_request(httpc, conf, url_path, body, isCompressed, user_agent_s
         method = "POST",
         body = body,
         headers = headers,
-        ssl_verify = false, -- TODO: Figure it out
+        ssl_verify = false,
         keepalive_timeout = keepalive_timeout-- 10min
     })
 end

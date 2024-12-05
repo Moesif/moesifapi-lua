@@ -1,22 +1,7 @@
 local _M = {}
-local url = require "socket.url"
-local HTTPS = "https"
+
 local cjson = require "cjson"
 local base64 = require "moesifapi.lua.base64"
-
-
-local function dump(o)
-    if type(o) == 'table' then
-      local s = '{ '
-      for k,v in pairs(o) do
-        if type(k) ~= 'number' then k = '"'..k..'"' end
-        s = s .. '['..k..'] = ' .. dump(v) .. ','
-      end
-      return s .. '} '
-    else
-      return tostring(o)
-    end
-  end
 
 -- Prepare request URI
 -- @param `moesif_ctx`  Moesif context object
@@ -26,11 +11,9 @@ function _M.prepare_request_uri(moesif_ctx, conf)
 
   local request_uri = moesif_ctx.var.request_uri
 
-  moesif_ctx.log(moesif_ctx.DEBUG, "config in prepare_request_uri - ", dump(conf))
-
-  -- TODO: Add pcall?
-  if next(cjson.decode(conf:get("request_query_masks"))) ~= nil and request_uri ~= nil then
-    for _, value in ipairs(cjson.decode(conf:get("request_query_masks"))) do
+  local decoded_request_query_masks = cjson.decode(conf:get("request_query_masks"))
+  if next(decoded_request_query_masks) ~= nil and request_uri ~= nil then
+    for _, value in ipairs(decoded_request_query_masks) do
       request_uri = request_uri:gsub(value.."=[^&]*([^&])", value.."=*****", 1)
     end
   end

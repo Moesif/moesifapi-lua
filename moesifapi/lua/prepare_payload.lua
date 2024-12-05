@@ -3,14 +3,6 @@ local _M = {}
 local cjson = require "cjson"
 local zlib = require "zlib"
 
--- local function loadModules()
---   local cjson = require "cjson"
---   local zlib = require "zlib"
---   return cjson, zlib
--- end
-
--- local cjson, zlib = loadModules()
-
 local function compress_data(input_string)
   local compressor = zlib.deflate()
   local compressed_data, eof, bytes_in, bytes_out = compressor(input_string, "finish")
@@ -39,7 +31,6 @@ function _M.generate_post_payload(moesif_ctx, conf, message, debug)
       payload = compressed_body
     end
   else
-    moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] NO NEED TO compress body: ")
     payload = body
   end
   

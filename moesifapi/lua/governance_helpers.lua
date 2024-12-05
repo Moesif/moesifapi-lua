@@ -1,4 +1,5 @@
 local _M = {}
+
 local cjson = require "cjson"
 local connect = require "moesifapi.lua.http_connection"
 governance_rules_hashes = {}
@@ -11,19 +12,6 @@ RuleType = {
     COMPANY = "company",
     REGEX = "regex"
 }
-
-local function dump(o)
-    if type(o) == 'table' then
-      local s = '{ '
-      for k,v in pairs(o) do
-        if type(k) ~= 'number' then k = '"'..k..'"' end
-        s = s .. '['..k..'] = ' .. dump(v) .. ','
-      end
-      return s .. '} '
-    else
-      return tostring(o)
-    end
-  end
 
 -- Get Governance Rules function
 -- @param hash_key   Hash key of the config application Id
