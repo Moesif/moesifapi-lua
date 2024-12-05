@@ -6,7 +6,7 @@ local app_config = require "moesifapi.lua.app_config"
 local moesif_gov = require "moesifapi.lua.moesif_gov"
 local helpers = require "moesifapi.lua.helpers"
 local prepare_payload = require "moesifapi.lua.prepare_payload"
-local body_helper = require "moesifapi.lua.serializaiton_helper"
+local parse_body = require "moesifapi.lua.parse_body"
 local event_helper = require "moesifapi.lua.event_helper"
 local regex_config_helper = require "moesifapi.lua.regex_config_helpers"
 local moesif_ctx = nil
@@ -56,9 +56,8 @@ function _M.generate_post_payload(conf, message, debug)
     return prepare_payload.generate_post_payload(moesif_ctx, conf, message, debug)
 end
 
-
 function _M.parse_body(headers, body, mask_fields, config)
-    return body_helper.parse_body(moesif_ctx, headers, body, mask_fields, config)
+    return parse_body.parse_body(moesif_ctx, headers, body, mask_fields, config)
 end
 
 function _M.get_identity_from_auth_header(conf, request_headers)
