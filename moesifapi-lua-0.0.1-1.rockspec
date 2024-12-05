@@ -11,7 +11,7 @@ local pluginName = package:match("^moesifapi%-lua%-(.+)$")  -- "moesif"
 
 supported_platforms = {"linux", "macosx"}
 source = {
-  url = "git://github.com/Moesif/moesfiapi-lua/",
+  url = "git://github.com/Moesif/moesifapi-lua/",
   tag = "0.0.1"
 }
 
