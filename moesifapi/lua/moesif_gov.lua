@@ -411,7 +411,6 @@ end
 function _M.govern_request(moesif_ctx, conf, start_access_phase_time, verb, headers)
 
     -- Hash key of the config application Id
-    -- local hash_key = string.sub(conf.application_id, -10)
     local hash_key = string.sub(conf:get("application_id"), -10)
     local user_id_entity = nil
     local company_id_entity = nil
@@ -424,20 +423,20 @@ function _M.govern_request(moesif_ctx, conf, start_access_phase_time, verb, head
 
     -- company id
     -- Fetch the company details
-    if conf.company_id_header ~= nil and request_headers[conf.company_id_header] ~= nil then
-        company_id_entity = tostring(request_headers[conf.company_id_header])
+    if conf:get("company_id_header") ~= nil and request_headers[conf:get("company_id_header")] ~= nil then
+        company_id_entity = tostring(request_headers[conf:get("company_id_header")])
     end
 
     -- Fetch the user details
-    if conf.user_id_header ~= nil and request_headers[conf.user_id_header] ~= nil then
-        user_id_entity = tostring(request_headers[conf.user_id_header])
+    if conf:get("user_id_header") ~= nil and request_headers[conf:get("user_id_header")] ~= nil then
+        user_id_entity = tostring(request_headers[conf:get("user_id_header")])
     elseif request_headers["x-consumer-custom-id"] ~= nil then
         user_id_entity = tostring(request_headers["x-consumer-custom-id"])
     elseif request_headers["x-consumer-username"] ~= nil then
         user_id_entity = tostring(request_headers["x-consumer-username"])
     elseif request_headers["x-consumer-id"] ~= nil then
         user_id_entity = tostring(request_headers["x-consumer-id"])
-    elseif conf.authorization_header_name ~= nil and (conf.authorization_user_id_field ~= nil or (company_id_entity == nil and conf.authorization_company_id_field ~= "" and conf.authorization_company_id_field ~= nil)) then
+    elseif conf:get("authorization_header_name") ~= nil and (conf:get("authorization_user_id_field") ~= nil or (company_id_entity == nil and conf:get("authorization_company_id_field") ~= "" and conf:get("authorization_company_id_field") ~= nil)) then
         user_id_entity, company_id_entity = helper.get_identity_from_auth_header(conf, request_headers)
     else
         user_id_entity = nil
@@ -448,29 +447,29 @@ function _M.govern_request(moesif_ctx, conf, start_access_phase_time, verb, head
     -- Set entity in conf to use downstream
     if moesif_ctx.ctx.moesif["user_id_entity"] == nil and user_id_entity ~= nil then 
         moesif_ctx.ctx.moesif["user_id_entity"] = user_id_entity
-        if conf.debug then
+        if conf:get("debug") then
             moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] User Id from governance info: " .. user_id_entity)
         end
     end
     if moesif_ctx.ctx.moesif["company_id_entity"] == nil and company_id_entity ~= nil then 
         moesif_ctx.ctx.moesif["company_id_entity"] = company_id_entity
-        if conf.debug then
+        if conf:get("debug") then
             moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] Company Id from governance info: " .. company_id_entity)
         end
     end
 
     local matched_rules = {}
 
-    local identified_user_gov_rules = get_rules(moesif_ctx, hash_key, RuleType.USER, "identified", conf.debug)
+    local identified_user_gov_rules = get_rules(moesif_ctx, hash_key, RuleType.USER, "identified", conf:get("debug"))
     -- Check if need to block request based on identified user governance rule
     if user_id_entity ~= nil and identified_user_gov_rules ~= nil and type(identified_user_gov_rules) == "table" and next(identified_user_gov_rules) ~= nil then
-        local user_identified_matched_rules = block_request_based_on_entity_governance_rule(moesif_ctx, hash_key, identified_user_gov_rules, "user_rules", user_id_entity, request_config_mapping, conf.debug)
+        local user_identified_matched_rules = block_request_based_on_entity_governance_rule(moesif_ctx, hash_key, identified_user_gov_rules, "user_rules", user_id_entity, request_config_mapping, conf:get("debug"))
         if user_identified_matched_rules == nil or next(user_identified_matched_rules) == nil then
-            if conf.debug then
+            if conf:get("debug") then
                 moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] Skipped blocking request based on the user Id - " .. user_id_entity)
             end
         else
-            if conf.debug then
+            if conf:get("debug") then
                 moesif_ctx.log(moesif_ctx.DEBUG, "Matched user_identified_matched_rules: ")
                 for _, rule in pairs(user_identified_matched_rules) do
                     moesif_ctx.log(moesif_ctx.DEBUG, rule["name"])
@@ -480,19 +479,19 @@ function _M.govern_request(moesif_ctx, conf, start_access_phase_time, verb, head
         end
     end
 
-    local unidentified_user_gov_rules = get_rules(moesif_ctx, hash_key, RuleType.USER, "unidentified", conf.debug)
+    local unidentified_user_gov_rules = get_rules(moesif_ctx, hash_key, RuleType.USER, "unidentified", conf:get("debug"))
     -- Check if need to block request based on unidentified user governance rule
     if unidentified_user_gov_rules ~= nil and type(unidentified_user_gov_rules) == "table" and next(unidentified_user_gov_rules) ~= nil then
         if user_id_entity == nil then
             -- Check if the governance rule regex config matches request config mapping and unidentified user governance rules
-            local null_user_unidentified_matched_rules = regex_config_helper.fetch_governance_rule_id_on_regex_match(moesif_ctx, unidentified_user_gov_rules, request_config_mapping, conf.debug)
+            local null_user_unidentified_matched_rules = regex_config_helper.fetch_governance_rule_id_on_regex_match(moesif_ctx, unidentified_user_gov_rules, request_config_mapping, conf:get("debug"))
             -- Check if need to block request based on governance rule regex config
             if null_user_unidentified_matched_rules == nil or next(null_user_unidentified_matched_rules) == nil then
-                if conf.debug then
+                if conf:get("debug") then
                     moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] Skipped blocking request based on the unidentified user governance rules with undefined user")
                 end
             else
-                if conf.debug then
+                if conf:get("debug") then
                     moesif_ctx.log(moesif_ctx.DEBUG, "Matched null_user_unidentified_matched_rules: ")
                     for _, rule in pairs(null_user_unidentified_matched_rules) do
                         moesif_ctx.log(moesif_ctx.DEBUG, rule["name"])
@@ -501,13 +500,13 @@ function _M.govern_request(moesif_ctx, conf, start_access_phase_time, verb, head
                 concat_list(matched_rules, null_user_unidentified_matched_rules)
             end
         else
-            local user_unidentified_matched_rules = block_request_based_on_entity_governance_rule(moesif_ctx, hash_key, unidentified_user_gov_rules, "user_rules", user_id_entity, request_config_mapping, conf.debug)
+            local user_unidentified_matched_rules = block_request_based_on_entity_governance_rule(moesif_ctx, hash_key, unidentified_user_gov_rules, "user_rules", user_id_entity, request_config_mapping, conf:get("debug"))
             if user_unidentified_matched_rules == nil or next(user_unidentified_matched_rules) == nil then
-                if conf.debug then
+                if conf:get("debug") then
                     moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] Skipped blocking request based on the unidentified user governance rule user_id - " ..user_id_entity)
                 end
             else
-                if conf.debug then
+                if conf:get("debug") then
                     moesif_ctx.log(moesif_ctx.DEBUG, "Matched user_unidentified_matched_rules: ")
                     for _, rule in pairs(user_unidentified_matched_rules) do
                         moesif_ctx.log(moesif_ctx.DEBUG, rule["name"])
@@ -518,11 +517,11 @@ function _M.govern_request(moesif_ctx, conf, start_access_phase_time, verb, head
         end
     end
 
-    local identified_company_gov_rules = get_rules(moesif_ctx, hash_key, RuleType.COMPANY, "identified", conf.debug)
+    local identified_company_gov_rules = get_rules(moesif_ctx, hash_key, RuleType.COMPANY, "identified", conf:get("debug"))
     -- Check if need to block request based on identified company governance rule
     if company_id_entity ~= nil and identified_company_gov_rules ~= nil and type(identified_company_gov_rules) == "table" and next(identified_company_gov_rules) ~= nil then
-        local company_identified_matched_rules = block_request_based_on_entity_governance_rule(moesif_ctx, hash_key, identified_company_gov_rules, "company_rules", company_id_entity, request_config_mapping,  conf.debug)
-        if conf.debug then
+        local company_identified_matched_rules = block_request_based_on_entity_governance_rule(moesif_ctx, hash_key, identified_company_gov_rules, "company_rules", company_id_entity, request_config_mapping,  conf:get("debug"))
+        if conf:get("debug") then
             if company_identified_matched_rules == nil or next(company_identified_matched_rules) == nil then
                 moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] Skipped blocking request based on the company Id - " .. company_id_entity)
             else
@@ -535,19 +534,19 @@ function _M.govern_request(moesif_ctx, conf, start_access_phase_time, verb, head
         end
     end
 
-    local unidentified_company_gov_rules = get_rules(moesif_ctx, hash_key, RuleType.COMPANY, "unidentified", conf.debug)
+    local unidentified_company_gov_rules = get_rules(moesif_ctx, hash_key, RuleType.COMPANY, "unidentified", conf:get("debug"))
     -- Check if need to block request based on unidentified company governance rule
     if unidentified_company_gov_rules ~= nil and type(unidentified_company_gov_rules) == "table" and next(unidentified_company_gov_rules) ~= nil then
         if company_id_entity == nil then
             -- Check if the governance rule regex config matches request config mapping and unidentified company rules
-            local null_company_unidentified_matched_rules = regex_config_helper.fetch_governance_rule_id_on_regex_match(moesif_ctx, unidentified_company_gov_rules, request_config_mapping, conf)
+            local null_company_unidentified_matched_rules = regex_config_helper.fetch_governance_rule_id_on_regex_match(moesif_ctx, unidentified_company_gov_rules, request_config_mapping, conf:get("debug"))
             -- Check if need to block request based on governance rule regex config
             if null_company_unidentified_matched_rules == nil or next(null_company_unidentified_matched_rules) == nil then
-                if conf.debug then
+                if conf:get("debug") then
                     moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] Skipped blocking request based on the unidentified company governance rules with undefined company")
                 end
             else
-                if conf.debug then
+                if conf:get("debug") then
                     moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] Matched null_company_unidentified_matched_rules: ")
                     for _, rule in pairs(null_company_unidentified_matched_rules) do
                         moesif_ctx.log(moesif_ctx.DEBUG, rule["name"])
@@ -556,13 +555,13 @@ function _M.govern_request(moesif_ctx, conf, start_access_phase_time, verb, head
                 concat_list(matched_rules, null_company_unidentified_matched_rules)
             end
         else
-            local company_unidentified_matched_rules = block_request_based_on_entity_governance_rule(moesif_ctx, hash_key, unidentified_company_gov_rules, "company_rules", company_id_entity, request_config_mapping, conf.debug)
+            local company_unidentified_matched_rules = block_request_based_on_entity_governance_rule(moesif_ctx, hash_key, unidentified_company_gov_rules, "company_rules", company_id_entity, request_config_mapping, conf:get("debug"))
             if company_unidentified_matched_rules == nil  or next(company_unidentified_matched_rules) == nil then
-                if conf.debug then
+                if conf:get("debug") then
                     moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] Skipped blocking request based on the unidentified company governance rules | company_id - " ..company_id_entity)
                 end
             else
-                if conf.debug then
+                if conf:get("debug") then
                     moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] Matched company_unidentified_matched_rules: ")
                     for _, rule in pairs(company_unidentified_matched_rules) do
                         moesif_ctx.log(moesif_ctx.DEBUG, rule["name"])
@@ -573,18 +572,18 @@ function _M.govern_request(moesif_ctx, conf, start_access_phase_time, verb, head
         end
     end
 
-    local regex_gov_rules = get_rules(moesif_ctx, hash_key, RuleType.REGEX, "unidentified", conf.debug)
+    local regex_gov_rules = get_rules(moesif_ctx, hash_key, RuleType.REGEX, "unidentified", conf:get("debug"))
     ---- Check if need to block request based on the regex governance rule
     if regex_gov_rules ~= nil and type(regex_gov_rules) == "table" and next(regex_gov_rules) ~= nil then
         -- Check if the governance rule regex config matches request config mapping and regex governance rules
-        local regex_matched_rules = regex_config_helper.fetch_governance_rule_id_on_regex_match(moesif_ctx, regex_gov_rules, request_config_mapping, conf)
+        local regex_matched_rules = regex_config_helper.fetch_governance_rule_id_on_regex_match(moesif_ctx, regex_gov_rules, request_config_mapping, conf:get("debug"))
         -- Check if need to block request based on governance rule regex config
         if regex_matched_rules == nil or next(regex_matched_rules) == nil then
-            if conf.debug then
+            if conf:get("debug") then
                 moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] Skipped blocking request based on the regex governance rules")
             end
         else
-            if conf.debug then
+            if conf:get("debug") then
                 moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] Matched regex_matched_rules: ")
                 for _, rule in pairs(regex_matched_rules) do
                     moesif_ctx.log(moesif_ctx.DEBUG, rule["name"])
@@ -595,11 +594,11 @@ function _M.govern_request(moesif_ctx, conf, start_access_phase_time, verb, head
     end
 
     if matched_rules == nil or next(matched_rules) == nil then
-        if conf.debug then
+        if conf:get("debug") then
             moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] No governance rule will be applied")
         end
     else
-        if conf.debug then
+        if conf:get("debug") then
             moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] Matched rules: ")
             for _, rule in pairs(matched_rules) do
                 moesif_ctx.log(moesif_ctx.DEBUG, rule["name"])
@@ -607,9 +606,9 @@ function _M.govern_request(moesif_ctx, conf, start_access_phase_time, verb, head
         end
     end
 
-    local resp = generate_gov_rule_response(moesif_ctx, hash_key, matched_rules, user_id_entity, company_id_entity, start_access_phase_time, conf.debug)
+    local resp = generate_gov_rule_response(moesif_ctx, hash_key, matched_rules, user_id_entity, company_id_entity, start_access_phase_time, conf:get("debug"))
     if resp == nil then
-        if conf.debug then
+        if conf:get("debug") then
             moesif_ctx.log(moesif_ctx.DEBUG, "[moesif] No governance block response generated ")
         end
     end
